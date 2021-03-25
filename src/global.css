@@ -186,3 +186,34 @@ aside footer *:last-child {
     box-shadow: 0 0 10em rgba(255, 255, 255, 0.02) inset;
   }
 }
+
+.error {
+  color: darkred;
+}
+
+#wallet-selection{
+  display: flex;
+  flex-flow: row;
+  justify-content: space-around;
+}
+.wallet-box {
+  border: 2px solid lightgray;
+  padding: 10px 40px;
+  margin: 5px 10px;
+  border-radius: 10px;
+  color:#404040;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+}
+.wallet-logo {
+  width: 140px;
+  height: 140px;
+}
+.near-logo {
+  background-image: url(assets/logo-black.svg);
+}
+.narwallets-logo {
+  background-image: url(assets/narwallets.svg);
+}

@@ -12,8 +12,8 @@
   <main id="signed-out-flow" style="display: none">
     <h1>Welcome to NEAR!</h1>
     <p>
-      To make use of the NEAR blockchain, you need to sign in. The button
-      below will sign you in using NEAR Wallet.
+      To make use of the NEAR blockchain, you need to sign in using a Wallet. 
+      Choose a wallet to connect to this contract.
     </p>
     <p>
       By default, when your app runs in "development" mode, it connects
@@ -22,11 +22,22 @@
       convertible to other currencies – they're just for testing!
     </p>
     <p>
-      Go ahead and click the button below to try it out:
+      Go ahead and choose a wallet to try it out:
     </p>
-    <p style="text-align: center; margin-top: 2.5em">
+    <!--<p style="text-align: center; margin-top: 2.5em">
       <button id="sign-in-button">Sign in</button>
     </p>
+    -->
+    <div id="wallet-selection">
+    <div id="near-web-wallet-box" class="wallet-box">
+      <div class="near-logo wallet-logo"></div>
+      <p>NEAR Web Wallet</p>
+    </div>
+    <div id="narwallets-wallet-box" class="wallet-box">
+      <div class="narwallets-logo wallet-logo" id="narwallets-logo-div"></div>
+      <p>Narwallets<br>chrome-extension</p>
+    </div>
+    </div>
   </main>
 
   <div id="signed-in-flow" style="display: none">
@@ -101,6 +112,11 @@
       <div>✔ Succeeded</div>
       <div>Just now</div>
     </footer>
+  </aside>
+
+  <aside id="err-msg-aside" style="display: none">
+    <span class="error">Error:</span>
+    <span id="err-msg"></span>
   </aside>
 
   <script src="./index.ts"></script>
