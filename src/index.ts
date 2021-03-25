@@ -219,12 +219,7 @@ function narwalletConnected(ev:CustomEvent){
   //if (accName.length>22) accName=accName.slice(0,10)+".."+accName.slice(-10);
   //div.innerText = accName;
   //div.classList.add("connected")
-  // if (wallet.version()<semver(1,0,3)) {
-  //   d.showErr(`This test app requires Narwallets v1.0.3. Check beta-test instructions at Narwallets.com (${wallet.version})`)
-  // }
-  // else {
-  //   d.showSuccess("wallet connected")
-  // }
+  
   contract.wallet = narwallets; //set the contract to use narwallets
   signedInFlow()
 }

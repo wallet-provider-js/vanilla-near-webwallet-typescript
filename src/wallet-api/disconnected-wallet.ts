@@ -1,5 +1,6 @@
 import {WalletInterface} from "./wallet-interface"
-import {BatchTransaction,U128String} from "./batch-transaction"
+import {U128String} from "./util"
+import {BatchTransaction} from "./batch-transaction"
 
 const NOT_CONNECTED="not connected";
 

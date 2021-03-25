@@ -1,9 +1,10 @@
 import {WalletInterface, EventHandler} from "../wallet-interface"
-import {BatchTransaction, U128String, DEFAULT_GAS} from "../batch-transaction"
+import {BatchTransaction} from "../batch-transaction"
+import {U128String, DEFAULT_GAS} from "../util"
 
 import { WalletConnection } from "near-api-js";
 import { getTransactionLastResult } from "near-api-js/lib/providers";
-import BN from 'bn.js';
+import BN from 'bn.js'; //WARN: It has to be the same bn.js version as near-api-js
 
 //-----------------------------
 // WalletInterface implementation

@@ -1,7 +1,4 @@
-
-export const DEFAULT_GAS="200"+"0".repeat(12);
-
-export type U128String = string;
+import {U128String, DEFAULT_GAS} from './util'
 
 //----------------------
 //-- BatchTransaction --

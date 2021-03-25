@@ -1,5 +1,6 @@
-import {WalletInterface, EventHandler, semver} from "../wallet-interface"
-import {BatchTransaction, U128String, FunctionCall, Transfer} from "../batch-transaction"
+import {WalletInterface, EventHandler} from "../wallet-interface"
+import {BatchTransaction, FunctionCall, Transfer} from "../batch-transaction"
+import {U128String,SemVer} from "../util"
 
 //-------------------------------
 // WalletInterface implementation
@@ -14,7 +15,8 @@ export class Narwallet implements WalletInterface {
     _isConnected: boolean =false;
     _accountId: string="";
     _network="mainnet"; //default required network. Users will be required to connect accounts from mainnet
-    version = 0; //0 until wallet connected
+    _requiredVersion = new SemVer(2,0,0); //what wallet version this webapp requires (depends on the wallet-interface and be changed by the DApp)
+    version = new SemVer(0,0,0); //chrome-extension wallet version, 0 until wallet connects
 
     getAccountId():string{
         return this._accountId;
@@ -23,10 +25,11 @@ export class Narwallet implements WalletInterface {
     getNetwork(){ return this._network }
     setNetwork(value:string){ this._network = value;}
 
+    setRequiredVersion(semver:SemVer){ this._requiredVersion = semver}
+
     // Note: Connection is started from the chrome-extension, so web pages don't get any info before the user decides to "connect"
     // Also pages don't need to create buttons/options to connect to different wallets, as long all wallets connect with Dapp-pages by using this API
     // potentially, a single DApp can be used to operate on multiple chains, since all requests are high-level and go thru the chrome-extension
-
     isConnected() {return this._isConnected}
    
     disconnect(){
@@ -35,7 +38,7 @@ export class Narwallet implements WalletInterface {
         if (this._isConnected) window.postMessage({dest:"ext",code:"disconnect"},"*"); //inform the extension
         this._isConnected = false;
         this._accountId = "";
-        this.version = 0
+        this.version = new SemVer(0,0,0)
     }
 
     connectionHelp(){
@@ -127,11 +130,23 @@ function msgReceivedFromContentScript(msg:Record<string,any>){
 
     //handle connect and disconnect
     if (msg.code=="connect"){
-        //capture wallet version, default 1.0.2
-        narwallets.version=msg.data?.version||semver(1,0,2);
         //prepare response
         const wnet = narwallets.getNetwork();
         const response={dest:"ext", code:"connected", relayer:"wallet-api", version:"0.1", network:wnet, err:""}
+        //capture wallet version, default 1.0.2
+        if (msg.data?.version){
+            narwallets.version=SemVer.fromNumber(msg.data?.version)
+        }
+        else {
+            narwallets.version= new SemVer(1,0,2);
+        }
+        //check required version
+        if (narwallets.version.toNumber()<narwallets._requiredVersion.toNumber()) {
+            //respond back what network we require
+            response.err="The web page requires Narwallets v"+narwallets._requiredVersion.toString();
+            window.postMessage(response,"*")
+            return;
+        }
         if (wnet && (!msg.data || msg.data.network!=wnet)){
             //respond back what network we require
             response.err="The web page requires a "+wnet+" account";

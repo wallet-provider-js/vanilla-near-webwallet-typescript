@@ -1,5 +1,5 @@
 import {WalletInterface} from "./wallet-interface"
-import {U128String} from "./batch-transaction"
+import {U128String} from "./util"
 import {DisconnectedWallet} from "./disconnected-wallet";
 
 //-----------------------------

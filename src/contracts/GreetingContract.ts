@@ -1,4 +1,4 @@
-import {SmartContract} from "../wallet-api/base-sc"
+import {SmartContract} from "../wallet-api/base-smart-contract"
 
 //singleton class
 export class GreetingContract extends SmartContract {

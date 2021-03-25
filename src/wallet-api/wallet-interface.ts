@@ -1,9 +1,7 @@
-import {U128String, BatchTransaction, FunctionCall, Transfer} from "./batch-transaction.js"
+import {BatchTransaction, FunctionCall, Transfer} from "./batch-transaction"
+import {U128String} from "./util"
 
 export type EventHandler = (this:Document,ev:any)=>any;
-
-//helper to check wallet version
-export function semver(major:number,minor:number,version:number){return major*1e6+minor*1e3+version}
 
 //-----------------------
 //-- WALLET Interface  --
