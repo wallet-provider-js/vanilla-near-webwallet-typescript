@@ -206,6 +206,7 @@ aside footer *:last-child {
   flex-flow: column;
   align-items: center;
   text-align: center;
+  cursor: pointer;
 }
 .wallet-logo {
   width: 140px;

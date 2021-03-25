@@ -5,46 +5,48 @@ import {GreetingContract} from './contracts/GreetingContract'
 
 import { WalletInterface } from './wallet-api/wallet-interface';
 import { NearWebWallet } from './wallet-api/near-web-wallet/near-web-wallet';
-import { narwallet } from './wallet-api/narwallets/narwallets';
-import { addListener as chrome_extension_addListener, AddOnConnectListener, AddOnDisconnectListener } from './wallet-api/narwallets/extension-connection'
+import { narwallet, addNarwalletsListeners } from './wallet-api/narwallets/narwallets';
 
+//shortcut for document.querySelector
+function qs(selector:string):HTMLElement{ return document.querySelector(selector) as HTMLElement}
+
+//get global config
 const nearConfig = getConfig(process.env.NODE_ENV || 'development')
-const networkId = nearConfig.networkId;
 
-// global variable used throughout
+// global variables used throughout
 let currentGreeting:string; 
 let walletConnection:WalletConnection;
-//let accountId:string;
-//let wallet:WalletInterface;
 let contract:GreetingContract;
 
 const submitButton = document.querySelector('form button') as HTMLButtonElement
 
-function qs(selector:string):HTMLElement{ return document.querySelector(selector) as HTMLElement}
+//connect wallet selection boxes
+qs('#near-web-wallet-box').onclick = loginNearWebWallet
+qs('#narwallets-wallet-box').onclick = loginNarwallets
+//connect Sign-out link
+qs('#sign-out-button').onclick = logoutNearWebWallet
 
+//the user submits a new greeting
 qs('form').onsubmit = 
 async function(event) {
   event.preventDefault()
 
   // get elements from the form using their id attribute
-  const form = event.target as HTMLFormElement
-  const fieldset = form.elements[<any>"fieldset"] as HTMLFieldSetElement
-  const greeting = form.elements[<any>"greeting"] as HTMLInputElement
+  const {fieldset,greeting} = event.target as HTMLFormElement
 
   // disable the form while the value gets updated on-chain
   fieldset.disabled = true
 
   try {
-    // make an update call to the smart contract
-    await contract.setGreeting({
+      // make an update call to the smart contract
       // pass the value that the user entered in the greeting field
-      message: greeting.value
-    })
-    showNotification();
-    // disable the save button, since it now matches the persisted value
-    submitButton.disabled = true
-    // update the greeting in the UI
-    await fetchGreeting()
+      await contract.setGreeting(greeting.value);
+      //if ok...
+      showNotification();
+      // disable the save button, since it now matches the persisted value
+      submitButton.disabled = true
+      // update the greeting in the UI
+      await fetchGreeting()
   } 
   catch (ex) {
     showErr(ex.message);
@@ -73,9 +75,10 @@ function showErr(msg:string){
     // this allows it to be shown again next time the form is submitted
     setTimeout(() => {
       qs('[data-behavior=notification]').style.display = 'none'
-    }, 5000)
+    }, 10000)
 }
 
+//while the user types in the input-field
 qs('input#greeting').oninput = 
 function(event:Event) {
   if ((event.target as HTMLInputElement).value !== currentGreeting) {
@@ -84,11 +87,6 @@ function(event:Event) {
     submitButton.disabled = true
   }
 }
-
-qs('#near-web-wallet-box').onclick = loginNearWebWallet
-qs('#sign-out-button').onclick = logoutNearWebWallet
-
-qs('#narwallets-wallet-box').onclick = loginNarwallets
 
 // Display the signed-out-flow container
 function signedOutFlow() {
@@ -117,8 +115,8 @@ function signedInFlow() {
   contractLink.innerText = '@' + contract.contractId
 
   // update with selected networkId
-  accountLink.href = accountLink.href.replace('testnet', networkId)
-  contractLink.href = contractLink.href.replace('testnet', networkId)
+  accountLink.href = accountLink.href.replace('testnet', nearConfig.networkId)
+  contractLink.href = contractLink.href.replace('testnet', nearConfig.networkId)
 
   fetchGreeting()
 }
@@ -126,7 +124,7 @@ function signedInFlow() {
 // update global currentGreeting variable; update DOM with it
 async function fetchGreeting() {
   const accountId = contract.wallet.getAccountId()
-  currentGreeting = await contract.getGreeting({ accountId: accountId });
+  currentGreeting = await contract.getGreeting(accountId);
   document.querySelectorAll('[data-behavior=greeting]').forEach(el => {
     // set divs, spans, etc
     (el as HTMLElement).innerText = currentGreeting;
@@ -146,16 +144,20 @@ async function fetchGreeting() {
 window.onload = async function () {
   try {
 
+    //init contract proxy
+    contract = new GreetingContract(nearConfig.contractName);
+  
+    //init narwallets listeners
     narwallet.setNetwork(nearConfig.networkId); //set selected network
-    chrome_extension_addListener() //listen for connection events from narwallets-chrome-extension
-    AddOnConnectListener(narwalletConnected); //when narwallets connect
-    AddOnDisconnectListener(narwalletDisconnected); //when narwallets disconnect
+    addNarwalletsListeners(narwalletConnected,narwalletDisconnected) //listen to events
 
     //check if signed-in with NEAR Web Wallet
-    await initContract() 
+    await initNearWebWalletConnectiion() 
 
     if (walletConnection.isSignedIn()) {
       //already signed-in with NEAR Web Wallet
+      //make the contract use NEAR Web Wallet
+      contract.wallet = new NearWebWallet(walletConnection);
       signedInFlow()
     }
     else {
@@ -170,17 +172,13 @@ window.onload = async function () {
 
 
 // Initialize contract & set global variables
-async function initContract() {
+async function initNearWebWalletConnectiion() {
   // Initialize connection to the NEAR testnet
   const near = await connect(Object.assign({ deps: { keyStore: new keyStores.BrowserLocalStorageKeyStore() } }, nearConfig))
 
   // Initializing Wallet based Account. It can work with NEAR testnet wallet that
   // is hosted at https://wallet.testnet.near.org
   walletConnection = new WalletConnection(near,null)
-
-  const webWallet = new NearWebWallet(walletConnection);
-
-  contract = new GreetingContract(nearConfig.contractName, webWallet);
 
   // // Initializing our contract APIs by contract name and configuration
   // contract = (await new Contract(walletConnection.account(), nearConfig.contractName, {
@@ -194,6 +192,7 @@ async function initContract() {
 
 function logoutNearWebWallet() {
   walletConnection.signOut()
+  contract.disconnect();
   // reload page
   window.location.replace(window.location.origin + window.location.pathname)
 }
@@ -207,6 +206,8 @@ function loginNearWebWallet() {
 }
 
 function loginNarwallets() {
+  //login is initiated from the chrome-extension
+  //show step-by-step instructions
   window.open("http://www.narwallets.com/help/connect-to-web-app")
 }
 
@@ -214,7 +215,7 @@ function loginNarwallets() {
 function narwalletConnected(ev:CustomEvent){
 
   //const div = d.byId("connection-info");
-  let accName = ev.detail.data.accountId as string
+  //let accName = ev.detail.data.accountId as string
   //if (accName.length>22) accName=accName.slice(0,10)+".."+accName.slice(-10);
   //div.innerText = accName;
   //div.classList.add("connected")
@@ -223,9 +224,8 @@ function narwalletConnected(ev:CustomEvent){
   // }
   // else {
   //   d.showSuccess("wallet connected")
-  //   Dashboard.show()
   // }
-  contract.wallet = narwallet; //tell the contract to use narwallets
+  contract.wallet = narwallet; //set the contract to use narwallets
   signedInFlow()
 }
 
@@ -236,5 +236,6 @@ function narwalletDisconnected(ev:CustomEvent){
   // div.classList.remove("connected")
   // d.showSuccess("wallet disconnected")
   // InitialPage.show()
+  contract.disconnect();
   signedOutFlow()
 }

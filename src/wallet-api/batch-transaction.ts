@@ -1,9 +1,15 @@
+
+export const DEFAULT_GAS="200"+"0".repeat(12);
+
+export type U128String = string;
+
 //----------------------
 //-- BatchTransaction --
 //----------------------
-// this classes exists to facilitate the creation of a BatchTransaction
+// this classes exists to facilitate the creation of BatchTransactions
 // a BatchTransaction is a series of actions *to be executed on a fixed receiver*
 // by having this classes we can make typescript help with type-checking and code suggestions
+//
 export class BatchTransaction {
     items: BatchAction[] = []
     constructor(
@@ -16,31 +22,35 @@ export class BatchTransaction {
 
 }
 
+//generic batch-action
 export class BatchAction {
     constructor(
         public action: string,
-        public attachedNear: number = 0,
+        public attached: U128String = "0",
     ){}
 }
 
 export class FunctionCall extends BatchAction{
+    public gas:U128String;
     constructor(
         public method:string,
         public args: Record<string,any>,
-        public Tgas: number = 50,
-        attachedNear: number
+        gas?: U128String,
+        attached?: U128String
     ){
-        super("call",attachedNear)
+        super("call",attached)
+        this.gas = gas||DEFAULT_GAS;
     }
 
 }
 
 export class Transfer extends BatchAction{
     constructor(
-        attachedNear:number
+        attached:U128String
     ){
-        super("transfer",attachedNear)
+        super("transfer",attached)
     }
 }
 
-
+//TODO
+//add create-account, delete-account, etc

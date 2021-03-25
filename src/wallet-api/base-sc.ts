@@ -1,31 +1,35 @@
+import {WalletInterface} from "./wallet-interface"
+import {U128String} from "./batch-transaction"
+import {DisconnectedWallet} from "./disconnected-wallet";
+
 //-----------------------------
-// Base smart-contract class
+// Base smart-contract proxy class
 // provides constructor, view & call methods
 // derive your specific contract proxy from this class
 //-----------------------------
-
-import {WalletInterface} from "./wallet-interface.js"
-
-type yoctos = string
-
-//singleton class
 export class SmartContract {
     
+    public wallet:WalletInterface;
+
     constructor( 
         public contractId:string, 
-        public wallet:WalletInterface
     )
-    {}
+    {
+        this.wallet = new DisconnectedWallet(); //default wallet is DisconnectedWallet
+    }
 
     view(method:string, args?:any) : Promise<any> {
         if (!this.wallet) throw Error(`contract-proxy not connected ${this.contractId} trying to view ${method}`)
         return this.wallet.view(this.contractId,method,args)
     }
 
-    //default gas is 100T
-    call(method:string, args:any, TGas:number=100, nearsToDeposit:number=0) : Promise<any> {
+    call(method:string, args:any, gas?:U128String, attachedYoctos?:U128String) : Promise<any> {
         if (!this.wallet) throw Error(`contract-proxy not connected ${this.contractId} trying to call ${method}`)
-        return this.wallet.call(this.contractId, method, args, TGas, nearsToDeposit)
+        return this.wallet.call(this.contractId, method, args, gas, attachedYoctos)
+    }
+
+    disconnect(){
+        this.wallet = new DisconnectedWallet(); //set to DisconnectedWallet
     }
 }
 

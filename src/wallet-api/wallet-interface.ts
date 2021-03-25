@@ -1,14 +1,13 @@
-import {backgroundRequest} from "./narwallets/extension-connection.js"
-import {BatchTransaction, FunctionCall, Transfer} from "./batch-transaction.js"
+import {U128String, BatchTransaction, FunctionCall, Transfer} from "./batch-transaction.js"
 
 export type EventHandler = (this:Document,ev:any)=>any;
 
 //helper to check wallet version
 export function semver(major:number,minor:number,version:number){return major*1e6+minor*1e3+version}
 
-//-----------------------------
-//-- SINGLETON WALLET class  --
-//-----------------------------
+//-----------------------
+//-- WALLET Interface  --
+//-----------------------
 export interface WalletInterface {
     
     getAccountId():string;
@@ -28,12 +27,12 @@ export interface WalletInterface {
     /**
      * Just a single contract "view" call
      */
-    view (contract:string, method:string, args:Record<string,any>, options?:any):Promise<any>;
+    view (contract:string, method:string, args:Record<string,any>):Promise<any>;
 
     /**
      * A single contract "payable" fn call
      */
-    call(contract:string, method:string, args:Record<string,any>, TGas?:number, attachedNEAR?:number):Promise<any>;
+    call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attachedYoctos?:U128String):Promise<any>;
 
     /**
      * ASYNC. Applies/broadcasts a BatchTransaction to the blockchain
