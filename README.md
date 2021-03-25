@@ -45,8 +45,8 @@ Exploring The Code
    can learn how the frontend connects to the NEAR blockchain.
 
 3. Wallet selection is at index.ts .- Check `src/wallet-api/wallet-inteface.ts` to see what you need to implement 
-   to add a new wallet. `src/wallet-api/narwallets/` containst the Narwallets imlementation interface implementation. 
-   `src/wallet-api/near-web-wallet/` containst the NEAR Web Wallet interface implementation.
+   to add a new wallet. `src/wallet-api/narwallets/` contains the Narwallets interface implementation. 
+   `src/wallet-api/near-web-wallet/` contains the NEAR Web Wallet interface implementation.
 
 
 4. Tests: there are different kinds of tests for the frontend and the smart
