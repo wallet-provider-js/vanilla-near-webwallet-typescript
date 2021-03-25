@@ -1,6 +1,6 @@
 import {WalletInterface, EventHandler} from "../wallet-interface"
 import {BatchTransaction, FunctionCall, Transfer} from "../batch-transaction"
-import {U128String,SemVer} from "../util"
+import {U64String,U128String,SemVer} from "../util"
 
 //-------------------------------
 // WalletInterface implementation
@@ -67,9 +67,9 @@ export class Narwallet implements WalletInterface {
     /**
      * A single contract "payable" fn call
      */
-    async call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attached?:U128String):Promise<any>{
+    async call(contract:string, method:string, args:Record<string,any>, gas?:U64String, attachedYoctos?:U128String):Promise<any>{
         const bt=new BatchTransaction(contract)
-        bt.addItem(new FunctionCall(method,args,gas,attached))
+        bt.addItem(new FunctionCall(method,args,gas,attachedYoctos))
         return this.apply(bt)
     }
 

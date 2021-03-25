@@ -1,5 +1,5 @@
 import {BatchTransaction, FunctionCall, Transfer} from "./batch-transaction"
-import {U128String} from "./util"
+import {U64String,U128String} from "./util"
 
 export type EventHandler = (this:Document,ev:any)=>any;
 
@@ -30,7 +30,7 @@ export interface WalletInterface {
     /**
      * A single contract "payable" fn call
      */
-    call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attachedYoctos?:U128String):Promise<any>;
+    call(contract:string, method:string, args:Record<string,any>, gas?:U64String, attachedYoctos?:U128String):Promise<any>;
 
     /**
      * ASYNC. sends a BatchTransaction to the blockchain

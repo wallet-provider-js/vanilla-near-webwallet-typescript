@@ -16,9 +16,18 @@ Quick Start
 To run this project locally:
 
 1. Prerequisites: Make sure you've installed [Node.js] ≥ 12
-2. Install dependencies: `yarn install`
-3. Run the local development server: `yarn dev` (see `package.json` for a
-   full list of `scripts` you can run with `yarn`)
+
+2. Install dependencies: 
+   ```
+   $ yarn install
+   $ cd contract
+   contract/$ npm install
+   contract/$ cd ..
+   ```
+
+3. Install Narwallets development-version. See instructions at https://github.com/Narwallets/beta-testing#installing-the-software
+
+4. Run the local development server: `yarn dev`|`yarn start`  (see `package.json` for a full list of `scripts` you can run with `yarn`)
 
 Now you'll have a local development environment backed by the NEAR TestNet!
 
@@ -30,10 +39,17 @@ Exploring The Code
 
 1. The "backend" code lives in the `/contract` folder. See the README there for
    more info.
+
 2. The frontend code lives in the `/src` folder. `/src/index.html` is a great
-   place to start exploring. Note that it loads in `/src/index.js`, where you
+   place to start exploring. Note that it loads in `/src/index.ts`, where you
    can learn how the frontend connects to the NEAR blockchain.
-3. Tests: there are different kinds of tests for the frontend and the smart
+
+3. Wallet selection is at index.ts .- Check `src/wallet-api/wallet-inteface.ts` to see what you need to implement 
+   to add a new wallet. `src/wallet-api/narwallets/` containst the Narwallets imlementation interface implementation. 
+   `src/wallet-api/near-web-wallet/` containst the NEAR Web Wallet interface implementation.
+
+
+4. Tests: there are different kinds of tests for the frontend and the smart
    contract. See `contract/README` for info about how it's tested. The frontend
    code gets tested with [jest]. You can run both of these at once with `yarn
    run test`.

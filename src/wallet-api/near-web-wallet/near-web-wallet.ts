@@ -1,6 +1,6 @@
 import {WalletInterface, EventHandler} from "../wallet-interface"
 import {BatchTransaction} from "../batch-transaction"
-import {U128String, DEFAULT_GAS} from "../util"
+import {U64String,U128String, DEFAULT_GAS} from "../util"
 
 import { WalletConnection } from "near-api-js";
 import { getTransactionLastResult } from "near-api-js/lib/providers";
@@ -56,7 +56,7 @@ export class NearWebWallet implements WalletInterface {
     /**
      * A single contract "payable" fn call
      */
-    async call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attachedYoctos?:U128String):Promise<any>{
+    async call(contract:string, method:string, args:Record<string,any>, gas?:U64String, attachedYoctos?:U128String):Promise<any>{
         const rawResult = await this.walletConnection.account().functionCall(contract, method, args, new BN(gas||DEFAULT_GAS), new BN(attachedYoctos||"0"));
         return getTransactionLastResult(rawResult);
     }

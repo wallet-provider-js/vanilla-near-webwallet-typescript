@@ -1,4 +1,4 @@
-import {U128String, DEFAULT_GAS} from './util'
+import {U64String, U128String, DEFAULT_GAS} from './util'
 
 //----------------------
 //-- BatchTransaction --
@@ -28,11 +28,11 @@ export class BatchAction {
 }
 
 export class FunctionCall extends BatchAction{
-    public gas:U128String;
+    public gas:U64String;
     constructor(
         public method:string,
         public args: Record<string,any>,
-        gas?: U128String,
+        gas?: U64String,
         attached?: U128String
     ){
         super("call",attached)

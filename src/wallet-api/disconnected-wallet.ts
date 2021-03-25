@@ -1,5 +1,5 @@
 import {WalletInterface} from "./wallet-interface"
-import {U128String} from "./util"
+import {U64String,U128String} from "./util"
 import {BatchTransaction} from "./batch-transaction"
 
 const NOT_CONNECTED="not connected";
@@ -41,7 +41,7 @@ export class DisconnectedWallet implements WalletInterface {
     /**
      * A single contract "payable" fn call
      */
-    async call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attachedYoctos?:U128String):Promise<any>{
+    async call(contract:string, method:string, args:Record<string,any>, gas?:U64String, attachedYoctos?:U128String):Promise<any>{
         throw Error(NOT_CONNECTED) 
     }
 
