@@ -1,8 +1,14 @@
-vanilla
+Proof-of-concept, Dual-wallet, Hello World NEAR DApp
 ==================
+
+Includes: NEAR Web Wallet and Narwallets
 
 This app was initialized with [create-near-app]
 
+To add More Wallets
+===========
+You need to implement `WalletInterface`. 
+Check src/wallet-api/wallet-inteface.ts
 
 Quick Start
 ===========
