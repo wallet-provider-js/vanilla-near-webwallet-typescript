@@ -40,7 +40,7 @@ export class NearWebWallet implements WalletInterface {
      * isConnected or trhrows "wallet not connected"
      */
     checkConnected() {
-        if (!this.walletConnection?.isSignedIn()) {
+        if (!this.walletConnection.isSignedIn()) {
             throw Error("Wallet is not connected")
         }
     }
@@ -55,7 +55,7 @@ export class NearWebWallet implements WalletInterface {
     /**
      * A single contract "payable" fn call
      */
-    async call(contract:string, method:string, args:Record<string,any>, gas?:string, attachedYoctos?:string):Promise<any>{
+    async call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attachedYoctos?:U128String):Promise<any>{
         const rawResult = await this.walletConnection.account().functionCall(contract, method, args, new BN(gas||DEFAULT_GAS), new BN(attachedYoctos||"0"));
         return getTransactionLastResult(rawResult);
     }

@@ -35,7 +35,7 @@ export interface WalletInterface {
     call(contract:string, method:string, args:Record<string,any>, gas?:U128String, attachedYoctos?:U128String):Promise<any>;
 
     /**
-     * ASYNC. Applies/broadcasts a BatchTransaction to the blockchain
+     * ASYNC. sends a BatchTransaction to the blockchain
      */
     apply (bt:BatchTransaction):Promise<any>;
 

@@ -56,7 +56,6 @@ export class Narwallet implements WalletInterface {
      */
     async view (contract:string, method:string, args:Record<string,any>):Promise<any>{
 
-        narwallet.checkConnected()
         //ask the extension to make the view-call
         const requestPayload={dest:"ext", code:"view", contract:contract, method:method, args:args}
         return backgroundRequest(requestPayload);
@@ -72,12 +71,10 @@ export class Narwallet implements WalletInterface {
     }
 
     /**
-     * ASYNC. Applies/broadcasts a BatchTransaction to the blockchain
+     * ASYNC. sends a BatchTransaction to the blockchain
      */
     async apply (bt:BatchTransaction):Promise<any>{
 
-        narwallet.checkConnected()
-        
         //ask the extension to broadcast the transaction
         //register request. Promise will be resolved when the response arrives
         const requestPayload={dest:"ext", code:"apply", tx:bt}
@@ -88,10 +85,11 @@ export class Narwallet implements WalletInterface {
 //-----------------
 // SINGLETON EXPORT
 //-----------------
-export let narwallet = new Narwallet();
+export let narwallets = new Narwallet();
 
 //----------------------------------------
-//-- Add all listeners
+//-- Init, add all listeners
+//----------------------------------------
 export function addNarwalletsListeners(onConnect:EventHandler,OnDisconnect:EventHandler){
     addGeneralListener()
     addOnConnectListener(onConnect)
@@ -122,6 +120,7 @@ export function addOnDisconnectListener(handler:EventHandler){
     document.addEventListener<any>("wallet-disconnected",handler)
 }
 
+//process message from ext/page
 function msgReceivedFromContentScript(msg:Record<string,any>){
     
     //console.log("msg ext->page: " + JSON.stringify(msg));
@@ -129,9 +128,9 @@ function msgReceivedFromContentScript(msg:Record<string,any>){
     //handle connect and disconnect
     if (msg.code=="connect"){
         //capture wallet version, default 1.0.2
-        narwallet.version=msg.data?.version||semver(1,0,2);
+        narwallets.version=msg.data?.version||semver(1,0,2);
         //prepare response
-        const wnet = narwallet.getNetwork();
+        const wnet = narwallets.getNetwork();
         const response={dest:"ext", code:"connected", relayer:"wallet-api", version:"0.1", network:wnet, err:""}
         if (wnet && (!msg.data || msg.data.network!=wnet)){
             //respond back what network we require
@@ -140,14 +139,14 @@ function msgReceivedFromContentScript(msg:Record<string,any>){
             return;
         }
         //turn on connected flags
-        narwallet._isConnected = true;
-        narwallet._accountId = msg.data.accountId;
+        narwallets._isConnected = true;
+        narwallets._accountId = msg.data.accountId;
         //respond back so the the chrome-extension knows we're listening
         window.postMessage(response,"*")
     }
     else if (msg.code=="disconnect"){
-        if (narwallet.isConnected()) {      
-            narwallet.disconnect(); //dispatchs event, does it all
+        if (narwallets.isConnected()) {      
+            narwallets.disconnect(); //dispatchs event, does it all
         }   
         return;
     }
@@ -240,7 +239,7 @@ export function backgroundRequest(requestPayload:any):Promise<any>{
         requests.push(request)
         requestPayload.requestId=requestId; //add requestId to payload
         if (!requestPayload.dest) requestPayload.dest="ext";
-        //broadcast (injected content script will process it)
+        //broadcast (injected content script will process it and forward to the chrome-extension)
         window.postMessage(requestPayload, "*")
     })
 }

@@ -5,7 +5,7 @@ import {GreetingContract} from './contracts/GreetingContract'
 
 import { WalletInterface } from './wallet-api/wallet-interface';
 import { NearWebWallet } from './wallet-api/near-web-wallet/near-web-wallet';
-import { narwallet, addNarwalletsListeners } from './wallet-api/narwallets/narwallets';
+import { narwallets, addNarwalletsListeners } from './wallet-api/narwallets/narwallets';
 
 //shortcut for document.querySelector
 function qs(selector:string):HTMLElement{ return document.querySelector(selector) as HTMLElement}
@@ -148,7 +148,7 @@ window.onload = async function () {
     contract = new GreetingContract(nearConfig.contractName);
   
     //init narwallets listeners
-    narwallet.setNetwork(nearConfig.networkId); //set selected network
+    narwallets.setNetwork(nearConfig.networkId); //set selected network
     addNarwalletsListeners(narwalletConnected,narwalletDisconnected) //listen to events
 
     //check if signed-in with NEAR Web Wallet
@@ -225,7 +225,7 @@ function narwalletConnected(ev:CustomEvent){
   // else {
   //   d.showSuccess("wallet connected")
   // }
-  contract.wallet = narwallet; //set the contract to use narwallets
+  contract.wallet = narwallets; //set the contract to use narwallets
   signedInFlow()
 }
 
