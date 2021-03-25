@@ -44,7 +44,8 @@ if (code === 0 && calledFromDir !== __dirname) {
   sh.mkdir('-p', linkDir)
   sh.rm('-f', link)
   const linkPath = path.relative(linkDir, outFile)
-  sh.ln('-s', linkPath, link)
+  //sh.ln('-s', linkPath, link)
+  sh.cp("-u",outFile,link)
 }
 
 // exit script with the same code as the build command
